@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <bean id="connectionManager"
+          class="org.apache.http.impl.conn.PoolingHttpClientConnectionManager">
+        <property name="maxTotal" value="${http.connection.max}"/>
+    </bean>
+
+    <bean id="httpClientBuilder"
+          class="org.apache.http.impl.client.HttpClients" factory-method="custom">
+        <property name="connectionManager" ref="connectionManager"/>
+        <property name="defaultRequestConfig" ref="requestConfig"/>
+    </bean>
+
+    <bean id="httpClient" factory-bean="httpClientBuilder" factory-method="build"/>
+
+    <bean id="requestConfigBuilder"
+          class="org.apache.http.client.config.RequestConfig" factory-method="custom">
+        <!--time for creating TCP connection -->
+        <property name="connectTimeout" value="${http.connection.timeout}"/>
+        <!--indicate how many times wait for connection from connection manager-->
+        <property name="connectionRequestTimeout" value="${http.connection.request.timeout}"/>
+    </bean>
+
+    <bean id="requestConfig" factory-bean="requestConfigBuilder" factory-method="build"/>
+
+
+</beans>
