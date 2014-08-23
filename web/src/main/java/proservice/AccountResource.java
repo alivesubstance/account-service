@@ -1,5 +1,7 @@
 package proservice;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -17,6 +19,8 @@ import javax.ws.rs.core.MediaType;
  */
 @Path("/account")
 public class AccountResource {
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(AccountResource.class);
 
     public static final String ADD_PATH = "/add";
     public static final String GET_PATH = "/{id}";

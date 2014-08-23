@@ -40,12 +40,21 @@ public class InMemoryCacheService implements CacheService {
     @Override
     public Long getAmount(final Integer id) {
         try {
-            return cache.get(id, new Callable<Long>() {
+            final MutualBoolean isCacheUsed = new MutualBoolean(true);
+            Long value = cache.get(id, new Callable<Long>() {
                 @Override
                 public Long call() throws Exception {
+                    isCacheUsed.value = false;
                     return accountDao.getAmount(id);
                 }
             });
+
+            if (isCacheUsed.value) {
+                LOGGER.info("InMemoryCacheService.getAmount - "
+                            + "Load value [" + value + "] for balance [" + id + "] from cache");
+            }
+
+            return value;
         } catch (Exception e) {
             throw new CacheServiceException(e);
         }
@@ -57,18 +66,19 @@ public class InMemoryCacheService implements CacheService {
             synchronized (getIdLock(id)) {
                 Long currentValue = cache.getIfPresent(id);
                 if (currentValue != null) {
-                    currentValue += value;
-                } else {
-                    currentValue = value;
+                    value += currentValue;
                 }
-                cache.put(id, currentValue);
-                accountDao.addAmount(id, currentValue);
+
+                LOGGER.info("InMemoryCacheService.addAmount - " +
+                            "Put value [" + value + "] to cache for balance [" + id + "]");
+                cache.put(id, value);
+                accountDao.addAmount(id, value);
             }
         } catch (Exception e) {
             // remove balance from cache in case of any errors with data base
             cache.invalidate(id);
 
-            throw new CacheServiceException("Failed to add amount for for balance id [" + id + "]");
+            throw new CacheServiceException("Failed to add value for balance id [" + id + "]");
         } finally {
             releaseIdLock(id);
         }
@@ -98,5 +108,13 @@ public class InMemoryCacheService implements CacheService {
 
     private void releaseIdLock(Integer id) {
         idsLocks.remove(id);
+    }
+
+    private class MutualBoolean {
+        boolean value;
+
+        public MutualBoolean(boolean b) {
+            this.value = b;
+        }
     }
 }

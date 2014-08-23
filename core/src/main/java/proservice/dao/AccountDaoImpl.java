@@ -1,5 +1,7 @@
 package proservice.dao;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public class AccountDaoImpl implements AccountDao {
 
+    private final static Logger LOGGER = LoggerFactory.getLogger(AccountDaoImpl.class);
     private JdbcTemplate jdbcTemplate;
 
     // for CGLIB needs
@@ -23,6 +26,8 @@ public class AccountDaoImpl implements AccountDao {
     @Override
     public Long getAmount(Integer id) {
         try {
+            LOGGER.info("AccountDaoImpl.addAmount - "
+                        + "Select value for balance [" + id + "]");
             return jdbcTemplate.queryForObject("SELECT balance FROM accounts WHERE id = ?",
                     new Object[]{id}, Long.class);
         }
@@ -42,9 +47,13 @@ public class AccountDaoImpl implements AccountDao {
         }
 
         if (currentAmount == null) {
+            LOGGER.info("AccountDaoImpl.addAmount - "
+                        + "Insert value [" + value + "] for balance [" + id + "]");
             jdbcTemplate.update("insert into accounts values (?, ?)",
                     id, value);
         } else {
+            LOGGER.info("AccountDaoImpl.addAmount - "
+                        + "Update value [" + value + "] for balance [" + id + "]");
             jdbcTemplate.update("UPDATE accounts SET balance = ? WHERE id = ?",
                     currentAmount + value, id);
         }

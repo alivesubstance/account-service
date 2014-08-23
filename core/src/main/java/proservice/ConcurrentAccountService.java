@@ -24,18 +24,30 @@ public class ConcurrentAccountService implements AccountService {
     }
 
     @Override
-    public Long getAmount(Integer id) {
+    public Long getAmount(Integer id) throws AccountServiceException {
         LOGGER.info("ConcurrentAccountService.getAmount - "
-                    + "Request balance for account [" + id + "]");
+                    + "Request balance [" + id + "]");
 
-        return cacheService.getAmount(id);
+        try {
+            return cacheService.getAmount(id);
+        } catch (Exception e) {
+            String msg = "Failed to get value for balance [" + id + "]";
+            LOGGER.error("ConcurrentAccountService.getAmount - " + msg, e);
+            throw new AccountServiceException(msg);
+        }
     }
 
     @Override
-    public void addAmount(Integer id, Long value) {
+    public void addAmount(Integer id, Long value) throws AccountServiceException {
         LOGGER.info("ConcurrentAccountService.addAmount - "
-                    + "Add amount [" + value + "] to account [" + id + "]");
+                    + "Add amount [" + value + "] to balance [" + id + "]");
 
-        cacheService.addAmount(id, value);
+        try {
+            cacheService.addAmount(id, value);
+        } catch (Exception e) {
+            String msg = "Failed to add value for balance [" + id + "]";
+            LOGGER.error("ConcurrentAccountService.addAmount - " + msg, e);
+            throw new AccountServiceException(msg);
+        }
     }
 }

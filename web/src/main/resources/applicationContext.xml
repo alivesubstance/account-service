@@ -8,4 +8,6 @@
     <bean id="accountResource" class="proservice.AccountResource">
         <constructor-arg ref="guavaAccountService"/>
     </bean>
+
+    <bean class="proservice.AccountServiceExceptionHandler"/>
 </beans>

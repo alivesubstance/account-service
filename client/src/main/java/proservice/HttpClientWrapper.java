@@ -9,13 +9,13 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,24 +37,29 @@ public class HttpClientWrapper {
         LOGGER.info("HttpClientWrapper.getAmount - Request for balance [" + id + "]");
         HttpGet httpGet = new HttpGet(url + id);
 
-        CloseableHttpResponse response = null;
+        CloseableHttpResponse response = executeRequest(id, httpGet, false);
+        if (response == null) {
+            return null;
+        }
+
         try {
-            response = httpClient.execute(httpGet);
-
             HttpEntity responseEntity = response.getEntity();
-            String amount = IOUtils.toString(responseEntity.getContent());
+            String result = IOUtils.toString(responseEntity.getContent());
 
-            return Long.valueOf(amount);
+            return Long.valueOf(result);
+        } catch (NumberFormatException nfe) {
+            // do not print full stack in case successful read from remove server
+            LOGGER.error("HttpClientWrapper.getAmount - "
+                         + "Failed to convert value for balance [" + id + "]: "
+                         + nfe.getMessage());
         } catch (Exception e) {
             LOGGER.error("HttpClientWrapper.getAmount - "
-                         + "Failed to get balance for account [" + id + "]", e);
+                         + "Failed to get value for balance [" + id + "]", e);
         } finally {
-            if (response != null) {
-                try {
-                    response.close();
-                } catch (IOException e) {
-                    //ignore it
-                }
+            try {
+                response.close();
+            } catch (IOException e) {
+                //ignore it
             }
         }
 
@@ -74,14 +79,18 @@ public class HttpClientWrapper {
         HttpPost httpPost = new HttpPost(url + "add");
         httpPost.setEntity(entity);
 
+        executeRequest(id, httpPost, true);
+    }
+
+    private CloseableHttpResponse executeRequest(Integer id, HttpUriRequest request, boolean closeResponse) {
         CloseableHttpResponse response = null;
         try {
-            response = httpClient.execute(httpPost);
+            response = httpClient.execute(request);
         } catch (Exception e) {
-            LOGGER.error("HttpClientWrapper.getAmount - "
-                         + "Failed to get balance for [" + id + "]", e);
+            LOGGER.error("HttpClientWrapper.executeRequest - "
+                         + "Failed to execute request for balance [" + id + "]", e);
         } finally {
-            if (response != null) {
+            if (closeResponse && response != null) {
                 try {
                     response.close();
                 } catch (IOException e) {
@@ -89,6 +98,7 @@ public class HttpClientWrapper {
                 }
             }
         }
+        return response;
     }
 
     public void close() {

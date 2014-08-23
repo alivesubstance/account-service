@@ -71,7 +71,12 @@ public class AccountExecutorService {
 
     private void startWriters() {
         for (int i = 0; i < wCount; i++) {
-            completionService.submit(new Writer(httpClientWrapper, getRandomId(), 1L));
+            Integer id = getRandomId();
+            Long value = (long)rand.nextInt(20);
+
+            Client.registerBalanceValue(id, value);
+
+            completionService.submit(new Writer(httpClientWrapper, id, value));
         }
     }
 
