@@ -3,6 +3,7 @@ package proservice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.CompletionService;
@@ -20,7 +21,7 @@ public class AccountExecutorService {
     private final HttpClientWrapper httpClientWrapper;
     private final int rCount;
     private final int wCount;
-    private final Integer[] idList;
+    private final List<Integer> idList;
     private final Random rand;
     private final ExecutorService executor;
     private CompletionService<Long> completionService;
@@ -33,7 +34,7 @@ public class AccountExecutorService {
      * @param activeThreads simultaneously worked thread
      */
     public AccountExecutorService(HttpClientWrapper httpClientWrapper, int rCount, int wCount,
-            Integer[] idList, int activeThreads) {
+            List<Integer> idList, int activeThreads) {
         this.httpClientWrapper = httpClientWrapper;
         this.rCount = rCount;
         this.wCount = wCount;
@@ -81,10 +82,10 @@ public class AccountExecutorService {
     }
 
     public Integer getRandomId() {
-        if (idList.length > 0 && idList.length == 1) {
-            return idList[0];
+        if (!idList.isEmpty() && idList.size() == 1) {
+            return idList.get(0);
         }
 
-        return idList[rand.nextInt(idList.length - 1)];
+        return idList.get(rand.nextInt(idList.size() - 1));
     }
 }

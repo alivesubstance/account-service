@@ -68,7 +68,7 @@ public class StatsEvent {
             }
         }
 
-        // in case we don't reach requiredPeriodMs
+        // in case we don't exceed requiredPeriodMs
         maxRate = rate > maxRate ? rate : maxRate;
 
         String formattedPeriod = decimalFormat.format((double) calculatedPeriod / 1e3);

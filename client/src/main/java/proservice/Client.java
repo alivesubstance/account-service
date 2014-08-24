@@ -1,13 +1,17 @@
 package proservice;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 /**
  * @author Mirian Dzhachvadze
@@ -16,12 +20,13 @@ public class Client {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(Client.class);
     private final static Map<Integer, Long> balances = Maps.newConcurrentMap();
-    private final static boolean assertBalances = false;
+    private static boolean assertBalances = false;
 
     public static void main(String[] args) {
-        int rCount = 1000;
-        int wCount = 1000;
-        Integer[] idList = createIdList("1,2-5");
+        int rCount = Integer.parseInt(getProperty("rCount"));
+        int wCount = Integer.parseInt(getProperty("wCount"));
+        List<Integer> idList = createIdList(getProperty("idList"));
+
         HttpClientWrapper httpClientWrapper = getHttpClientWrapper();
 
         if (assertBalances) {
@@ -37,17 +42,26 @@ public class Client {
         httpClientWrapper.close();
     }
 
+    private static String getProperty(String key) {
+        String property = System.getProperty(key);
+        if (StringUtils.isEmpty(property)) {
+            throw new IllegalArgumentException("Failed to find property [" + key + "]");
+        }
+
+        return property;
+    }
+
     private static void readGivenAccountBalances(HttpClientWrapper httpClientWrapper,
-            Integer[] idList) {
+            List<Integer> idList) {
         LOGGER.info("Client.readGivenAccountBalances - "
-                    + "Read all given balances " + Arrays.toString(idList));
+                    + "Read all given balances " + idList);
 
         for (Integer id : idList) {
             registerBalanceValue(id, httpClientWrapper.getAmount(id));
         }
     }
 
-    private static void doAssertBalances(HttpClientWrapper httpClientWrapper, Integer[] idList) {
+    private static void doAssertBalances(HttpClientWrapper httpClientWrapper, List<Integer> idList) {
         for (Integer id : idList) {
             Long actual = httpClientWrapper.getAmount(id);
             Long expected = balances.get(id);
@@ -71,13 +85,22 @@ public class Client {
         return httpClientWrapper;
     }
 
-    private static Integer[] createIdList(String ids) {
-        return new Integer[]{1,2,3,4,5,6,7,8,9};
+    private static List<Integer> createIdList(String ids) {
+        List<Integer> idList = Lists.newArrayList();
+        StringTokenizer tokenizer = new StringTokenizer(ids, ",");
+        while (tokenizer.hasMoreTokens()) {
+            String token = tokenizer.nextToken();
+            if (token.contains("-")) {
+                String[] interval = token.split("-");
+                for (int i = Integer.parseInt(interval[0]); i <= Integer.parseInt(interval[1]); i++) {
+                    idList.add(i);
+                }
+            } else {
+                idList.add(Integer.valueOf(token));
+            }
+        }
 
-        //StringTokenizer tokenizer = new StringTokenizer(ids, ",");
-        //while (tokenizer.nextToken()) {
-        //
-        //}
+        return idList;
     }
 
     // register balance changes for assertion purpose

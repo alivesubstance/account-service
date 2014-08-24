@@ -11,6 +11,10 @@
         <property name="url" value="${db.jdbc.url}"/>
         <property name="username" value="${db.username}"/>
         <property name="password" value="${db.password}"/>
+        <property name="maxActive" value="${db.pool.max.active}"/>
+        <property name="maxIdle" value="${db.pool.max.idle}"/>
+        <property name="minIdle" value="${db.pool.min.idle}"/>
+        <property name="initialSize" value="${db.pool.initial.size}"/>
     </bean>
 
     <bean id="accountDao" class="proservice.dao.AccountDaoImpl">
