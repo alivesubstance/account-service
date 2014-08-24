@@ -53,7 +53,7 @@ public class AccountResource {
 
     @Path(CLEAR_STATS_PATH)
     @GET
-    public void addAmount() {
+    public void clearStats() {
         StatsTracker.getInstance().clear();
     }
 
