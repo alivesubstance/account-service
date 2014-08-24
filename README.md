@@ -3,9 +3,9 @@ Account service
 
 Следующий компоненты необходимы для работы
 
-1 Tomcat
-2 Mysql
-3 Maven
+* Tomcat
+* Mysql
+* Maven
 
 Зайти в MySQL и создать базу test. Один из способов из командной строки:
 mysql -uroot -proot
