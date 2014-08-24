@@ -88,4 +88,8 @@ public class AccountExecutorService {
 
         return idList.get(rand.nextInt(idList.size() - 1));
     }
+
+    public void shutDown() {
+        executor.shutdown();
+    }
 }

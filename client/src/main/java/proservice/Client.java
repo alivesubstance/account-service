@@ -25,6 +25,7 @@ public class Client {
     public static void main(String[] args) {
         int rCount = Integer.parseInt(getProperty("rCount"));
         int wCount = Integer.parseInt(getProperty("wCount"));
+        int activeThreads = Integer.parseInt(getProperty("activeThreads", "-1"));
         List<Integer> idList = createIdList(getProperty("idList"));
 
         HttpClientWrapper httpClientWrapper = getHttpClientWrapper();
@@ -33,13 +34,16 @@ public class Client {
             readGivenAccountBalances(httpClientWrapper, idList);
         }
 
-        new AccountExecutorService(httpClientWrapper, rCount, wCount, idList, -1).start();
+        AccountExecutorService accountExec = new AccountExecutorService(
+                httpClientWrapper, rCount, wCount, idList, activeThreads);
+        accountExec.start();
 
         if (assertBalances) {
             doAssertBalances(httpClientWrapper, idList);
         }
 
         httpClientWrapper.close();
+        accountExec.shutDown();
     }
 
     private static String getProperty(String key) {
@@ -49,6 +53,14 @@ public class Client {
         }
 
         return property;
+    }
+
+    private static String getProperty(String key, String defaultProperty) {
+        try {
+            return getProperty(key);
+        } catch (IllegalArgumentException e) {
+            return defaultProperty;
+        }
     }
 
     private static void readGivenAccountBalances(HttpClientWrapper httpClientWrapper,
