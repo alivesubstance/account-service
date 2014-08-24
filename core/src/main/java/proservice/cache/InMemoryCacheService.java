@@ -38,7 +38,6 @@ public class InMemoryCacheService implements CacheService, InitializingBean {
             Integer concurrencyLevel) {
         this.accountDao = accountDao;
         cache = CacheBuilder.newBuilder()
-                //TODO play with concurrency level
                 .concurrencyLevel(concurrencyLevel)
                 .maximumSize(maxCacheValues)
                 .recordStats()

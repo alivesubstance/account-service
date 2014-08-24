@@ -1,5 +1,6 @@
 package proservice;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import java.util.concurrent.Executors;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+@Ignore
 @ContextConfiguration(locations = "classpath:core-context-test.xml")
 @RunWith(SpringJUnit4ClassRunner.class)
 public class AccountServiceImplTest {

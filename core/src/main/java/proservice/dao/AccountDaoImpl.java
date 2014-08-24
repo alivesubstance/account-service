@@ -47,7 +47,6 @@ public class AccountDaoImpl implements AccountDao {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void addAmount(Integer id, Long value) {
-        //TODO think to make it in one query
         Long currentAmount;
         try {
             currentAmount = getAmount(id);
