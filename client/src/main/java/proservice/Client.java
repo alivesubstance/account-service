@@ -19,8 +19,8 @@ public class Client {
     private final static boolean assertBalances = false;
 
     public static void main(String[] args) {
-        int rCount = 1;
-        int wCount = 0;
+        int rCount = 1000;
+        int wCount = 1000;
         Integer[] idList = createIdList("1,2-5");
         HttpClientWrapper httpClientWrapper = getHttpClientWrapper();
 
@@ -72,7 +72,7 @@ public class Client {
     }
 
     private static Integer[] createIdList(String ids) {
-        return new Integer[]{1};
+        return new Integer[]{1,2,3,4,5,6,7,8,9};
 
         //StringTokenizer tokenizer = new StringTokenizer(ids, ",");
         //while (tokenizer.nextToken()) {

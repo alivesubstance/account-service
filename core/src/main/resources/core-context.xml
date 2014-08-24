@@ -11,7 +11,8 @@
 
     <bean id="cacheService" class="proservice.cache.InMemoryCacheService">
         <constructor-arg index="0" ref="accountDao"/>
+        <constructor-arg index="1" value="${cache.size.max}"/>
+        <constructor-arg index="2" value="${cache.concurrency.level}"/>
     </bean>
-
 
 </beans>

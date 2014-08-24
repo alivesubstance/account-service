@@ -25,4 +25,9 @@ public class AccountDaoMock implements AccountDao {
         Long currentValue = getAmount(id);
         map.put(id, value + currentValue);
     }
+
+    @Override
+    public Map<Integer, Long> getAll() {
+        return map;
+    }
 }

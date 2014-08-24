@@ -1,10 +1,18 @@
 package proservice.dao;
 
+import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Map;
 
 /**
  * @author Mirian Dzhachvadze
@@ -39,6 +47,7 @@ public class AccountDaoImpl implements AccountDao {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void addAmount(Integer id, Long value) {
+        //TODO think to make it in one query
         Long currentAmount;
         try {
             currentAmount = getAmount(id);
@@ -57,5 +66,21 @@ public class AccountDaoImpl implements AccountDao {
             jdbcTemplate.update("UPDATE accounts SET balance = ? WHERE id = ?",
                     currentAmount + value, id);
         }
+    }
+
+    @Override
+    public Map<Integer, Long> getAll() {
+        return jdbcTemplate.query("select * from accounts", new ResultSetExtractor<Map<Integer, Long>>() {
+            @Override
+            public Map<Integer, Long> extractData(ResultSet rs)
+                    throws SQLException, DataAccessException {
+                Map<Integer, Long> balances = Maps.newHashMap();
+                while (rs.next()) {
+                    balances.put(rs.getInt(1), rs.getLong(2));
+                }
+
+                return balances;
+            }
+        });
     }
 }

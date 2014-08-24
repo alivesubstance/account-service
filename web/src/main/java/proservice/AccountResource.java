@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import proservice.stats.StatsTracker;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -24,6 +25,7 @@ public class AccountResource {
 
     public static final String ADD_PATH = "/add";
     public static final String GET_PATH = "/{id}";
+    public static final String CLEAR_STATS_PATH = "/clearstats";
 
     private AccountService delegate;
 
@@ -48,4 +50,12 @@ public class AccountResource {
     public void addAmount(@FormParam("id") Integer id, @FormParam("value") Long value) {
         delegate.addAmount(id, value);
     }
+
+    @Path(CLEAR_STATS_PATH)
+    @GET
+    public void addAmount() {
+        StatsTracker.getInstance().clear();
+    }
+
+
 }

@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import proservice.cache.CacheService;
 import proservice.cache.InMemoryCacheService;
 import proservice.dao.AccountDaoImpl;
+import proservice.stats.StatsEventType;
+import proservice.stats.StatsTracker;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,6 +20,7 @@ public class ConcurrentAccountService implements AccountService {
     private final static Logger LOGGER = LoggerFactory.getLogger(ConcurrentAccountService.class);
 
     private final CacheService cacheService;
+    private final StatsTracker statsTracker = StatsTracker.getInstance();
 
     public ConcurrentAccountService(CacheService cacheService) {
         this.cacheService = cacheService;
@@ -25,6 +28,8 @@ public class ConcurrentAccountService implements AccountService {
 
     @Override
     public Long getAmount(Integer id) throws AccountServiceException {
+        statsTracker.publish(StatsEventType.GET_AMOUNT);
+
         LOGGER.info("ConcurrentAccountService.getAmount - "
                     + "Request balance [" + id + "]");
 
@@ -39,6 +44,8 @@ public class ConcurrentAccountService implements AccountService {
 
     @Override
     public void addAmount(Integer id, Long value) throws AccountServiceException {
+        statsTracker.publish(StatsEventType.ADD_AMOUNT);
+
         LOGGER.info("ConcurrentAccountService.addAmount - "
                     + "Add amount [" + value + "] to balance [" + id + "]");
 
